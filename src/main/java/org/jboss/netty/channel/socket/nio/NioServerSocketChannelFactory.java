@@ -117,7 +117,11 @@ public class NioServerSocketChannelFactory implements ServerSocketChannelFactory
 
     /**
      * Creates a new instance.
-     *
+     * bossCount默认1，为啥设计成线程池？bossGroup设置为多线程是否多余？https://www.yisu.com/jc/576297.html  https://blog.csdn.net/qq_32445015/article/details/103910297
+     * 非主从模式下的bossGroup的线程数是否和端口数量有关，如果服务端只开放一个端口供客户端链接，那么bossGroup设置为多线程是否多余？
+     *    是多余的，你理解的非常到位，确实可以这么简单对应起来，就是按端口来对应，
+     *    就因为多余，所以可以直接上来就显式设置为1，不过多余坏处不大，因为其他的不启动多余的线程。
+     *    一个端口只能被一个线程监听，多线程是用来监听多个端口的
      * @param bossExecutor
      *        the {@link Executor} which will execute the boss threads
      * @param workerExecutor

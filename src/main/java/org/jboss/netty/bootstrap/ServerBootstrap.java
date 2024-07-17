@@ -378,7 +378,8 @@ public class ServerBootstrap extends Bootstrap {
             } finally {
                 ctx.sendUpstream(evt);
             }
-
+             //关于upstream 和 downstream，请看javadoc目录下UpStream--and--DownStream.png
+            //获取一个NioServerSocketChannel，并调用它的bind,监听端口
             evt.getChannel().bind(localAddress).addListener(new ChannelFutureListener() {
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if (future.isSuccess()) {
