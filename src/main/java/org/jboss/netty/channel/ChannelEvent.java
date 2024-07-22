@@ -184,6 +184,10 @@ import org.jboss.netty.channel.socket.ServerSocketChannel;
  * documentation to find out how an event flows in a pipeline and how to handle
  * the event in your application.
  *
+ * ChannelEvent是数据或者状态的载体,即两种类型Event = MessageEvent(业务数据) + ChannelStateEvent(channel状态)
+ * 例如传输的数据对应MessageEvent，状态的改变对应ChannelStateEvent
+ *
+ *
  * @apiviz.landmark
  * @apiviz.composedOf org.jboss.netty.channel.ChannelFuture
  */
