@@ -238,7 +238,8 @@ abstract class AbstractNioSelector implements NioSelector {
                     if (selectReturnsImmediately == 1024) {
                         // The selector returned immediately for 10 times in a row,
                         // so recreate one selector as it seems like we hit the
-                        // famous epoll(..) jdk bug.
+                        // famous epoll(..) jdk bug:简述：select(selector)在没有任何事件的情况下，本应该一直阻塞，但在某些版本jdk环境下，却被唤醒，导致死循环
+                        //https://blog.csdn.net/fedorafrog/article/details/113553943
                         rebuildSelector();
                         selector = this.selector;
                         selectReturnsImmediately = 0;

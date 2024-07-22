@@ -38,6 +38,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     private volatile Channel channel;
     private volatile ChannelSink sink;
+    //Pipeline是管理Handler的，他是利用Context来维护Handler之间的关系
     private volatile DefaultChannelHandlerContext head;
     private volatile DefaultChannelHandlerContext tail;
     private final Map<String, DefaultChannelHandlerContext> name2ctx =

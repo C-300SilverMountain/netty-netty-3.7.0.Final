@@ -318,8 +318,11 @@ public class ServerBootstrap extends Bootstrap {
             throw new NullPointerException("localAddress");
         }
         Binder binder = new Binder(localAddress);
+        //初始为空，忽略此类即可
         ChannelHandler parentHandler = getParentHandler();
 
+        //这里涉及到一个规范，启动类：ServerBootstrap，仅能操控到Channel，而规定Channel必须交由Handler处理（即不能额外写函数处理），并且Handler交由pipeline管理
+        //所以这里能看到创建了Handler（Binder）和pipeline，规范罢了
         ChannelPipeline bossPipeline = pipeline();
         bossPipeline.addLast("binder", binder);
         if (parentHandler != null) {
@@ -376,6 +379,7 @@ public class ServerBootstrap extends Bootstrap {
                 // Apply parent options.
                 evt.getChannel().getConfig().setOptions(parentOptions);
             } finally {
+                //调用下一个Handler
                 ctx.sendUpstream(evt);
             }
              //关于upstream 和 downstream，请看javadoc目录下UpStream--and--DownStream.png
