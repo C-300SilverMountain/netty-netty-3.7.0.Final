@@ -288,6 +288,7 @@ abstract class AbstractNioSelector implements NioSelector {
                 }
 
                 cancelledKeys = 0;
+                //清空内部队列中的所有任务
                 processTaskQueue();
                 selector = this.selector; // processTaskQueue() can call rebuildSelector()
 
@@ -310,6 +311,7 @@ abstract class AbstractNioSelector implements NioSelector {
                     shutdownLatch.countDown();
                     break;
                 } else {
+                    //处理IO事件
                     process(selector);
                 }
             } catch (Throwable t) {
