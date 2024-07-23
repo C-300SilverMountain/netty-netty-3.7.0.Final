@@ -42,6 +42,11 @@ public class EchoServerHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void messageReceived(
             ChannelHandlerContext ctx, MessageEvent e) {
+        //ChannelHandler的Context指的是ChannleHandler之间的关系 以及 ChannelHandler与ChannelPipeline之间的关系
+
+        //ChannelPipeline中的事件传播主要依赖于ChannelHandlerContext实现，
+        //由于ChannelHandlerContext中有ChannelHandler之间的关系，所以能得到ChannelHandler的后继节点，从而将事件传播到下一个ChannelHandler。
+
         // Send back the received message to the remote peer.
         transferredBytes.addAndGet(((ChannelBuffer) e.getMessage()).readableBytes());
         e.getChannel().write(e.getMessage());

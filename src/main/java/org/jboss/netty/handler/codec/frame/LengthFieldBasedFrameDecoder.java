@@ -178,15 +178,21 @@ import org.jboss.netty.channel.Channels;
  * +------+--------+------+----------------+      +------+----------------+
  * </pre>
  *
+ * 拆包器：https://www.cnblogs.com/java-chen-hao/p/11571229.html
  * @see LengthFieldPrepender
  */
 public class LengthFieldBasedFrameDecoder extends FrameDecoder {
 
+    //最大帧长度。也就是可以接收的数据的最大长度。如果超过，此次数据会被丢弃。
     private final int maxFrameLength;
+    //长度域偏移。就是说数据开始的几个字节可能不是表示数据长度，需要后移几个字节才是长度域。
     private final int lengthFieldOffset;
+    //长度域字节数。用几个字节来表示数据长度。(指定headher大小)
     private final int lengthFieldLength;
     private final int lengthFieldEndOffset;
+    //数据长度修正。因为长度域指定的长度可以使header+body的整个长度，也可以只是body的长度。如果表示header+body的整个长度，那么我们需要修正数据长度。
     private final int lengthAdjustment;
+    //跳过的字节数。如果你需要接收header+body的所有数据，此值就是0，如果你只想接收body数据，那么需要跳过header所占用的字节数。
     private final int initialBytesToStrip;
     private final boolean failFast;
     private boolean discardingTooLongFrame;
@@ -320,11 +326,12 @@ public class LengthFieldBasedFrameDecoder extends FrameDecoder {
             failIfNecessary(ctx, false);
             return null;
         }
-
+        // 如果当前可读字节还未达到长度长度域的偏移，那说明肯定是读不到长度域的，直接不读
         if (buffer.readableBytes() < lengthFieldEndOffset) {
             return null;
         }
-
+        // 拿到长度域的实际字节偏移，就是长度域的开始下标
+        // 这里就是需求4，开始的几个字节并不是长度域
         int actualLengthFieldOffset = buffer.readerIndex() + lengthFieldOffset;
         long frameLength;
         switch (lengthFieldLength) {

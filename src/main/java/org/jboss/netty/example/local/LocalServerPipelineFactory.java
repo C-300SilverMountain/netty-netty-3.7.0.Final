@@ -39,8 +39,12 @@ public class LocalServerPipelineFactory implements ChannelPipelineFactory {
 
     public ChannelPipeline getPipeline() throws Exception {
         final ChannelPipeline pipeline = Channels.pipeline();
+        // 简单非阻塞业务，可以使用I/O线程执行
         pipeline.addLast("decoder", new StringDecoder());
         pipeline.addLast("encoder", new StringEncoder());
+        //复杂耗时业务，使用新的线程池,而不是跟worker的线程池，这样即使业务代码执行时间长，也不会影响到IO工作
+
+        //注：executor之前的业务还是I/O线程执行，executor之后的业务才会使用新的线程池
         pipeline.addLast("executor", executionHandler);
         pipeline.addLast("handler", new EchoCloseServerHandler());
         return pipeline;
