@@ -35,6 +35,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
  * | ABC | DEF | GHI |
  * +-----+-----+-----+
  * </pre>
+ * 固定长度解码器
  */
 public class FixedLengthFrameDecoder extends FrameDecoder {
 

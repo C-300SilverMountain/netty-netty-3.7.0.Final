@@ -118,6 +118,17 @@ import org.jboss.netty.util.TimerTask;
  * @apiviz.landmark
  * @apiviz.uses org.jboss.netty.util.HashedWheelTimer
  * @apiviz.has org.jboss.netty.handler.timeout.IdleStateEvent oneway - - triggers
+ *
+ * 心跳服务：https://www.cnblogs.com/java-chen-hao/p/11453198.html
+ * 心跳包的作用：
+ * 保活
+ * Q：为什么说心跳机制能保持连接的存活，它是集群中或长连接中最为有效避免网络中断的一个重要的保障措施？
+ * A：之所以说是“避免网络中断的一个重要保障措施”，原因是：我们得知公网IP是一个宝贵的资源，一旦某一连接长时间的占用并且不发数据，这怎能对得起网络给此连接分配公网IP，这简直是对网络资源最大的浪费，所以基本上所有的NAT路由器都会定时的清除那些长时间没有数据传输的映射表项。
+ * 一是回收IP资源，二是释放NAT路由器本身内存的资源，这样问题就来了，连接被从中间断开了，双发还都不晓得对方已经连通不了了，还会继续发数据，这样会有两个结果：a) 发方会收到NAT路由器的RST包，导致发方知道连接已中断；b) 发方没有收到任何NAT的回执，NAT只是简单的drop相应的数据包
+ * 通常我们测试得出的是第二种情况会多些，就是客户端是不知道自己应经连接断开了，所以这时候心跳就可以和NAT建立关联了，只要我们在NAT认为合理连接的时间内发送心跳数据包，这样NAT会继续keep连接的IP映射表项不被移除，达到了连接不会被中断的目的。
+ *
+ * 检测另一端服务是否可用
+ * TCP的断开可能有时候是不能瞬时探知的，甚至是不能探知的，也可能有很长时间的延迟，如果前端没有正常的断开TCP连接，四次握手没有发起，服务端无从得知客户端的掉线，这个时候我们就需要心跳包来检测另一端服务是否还存活可用。
  */
 @Sharable
 public class IdleStateHandler extends SimpleChannelUpstreamHandler
@@ -126,8 +137,11 @@ public class IdleStateHandler extends SimpleChannelUpstreamHandler
 
     final Timer timer;
 
+    // 读事件空闲时间，0 则禁用事件
     final long readerIdleTimeMillis;
+    // 写事件空闲时间，0 则禁用事件
     final long writerIdleTimeMillis;
+    //读或写空闲时间，0 则禁用事件
     final long allIdleTimeMillis;
 
     /**
@@ -245,6 +259,8 @@ public class IdleStateHandler extends SimpleChannelUpstreamHandler
         timer.stop();
     }
 
+    //IdleStateHandler是在创建IdleStateHandler实例并添加到ChannelPipeline时添加定时任务来进行定时检测的，具体在initialize(ctx)方法实现；
+    // 同时在从ChannelPipeline移除或Channel关闭时，移除这个定时检测，具体在destroy()实现
     public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
         if (ctx.getPipeline().isAttached()) {
             // channelOpen event has been fired already, which means

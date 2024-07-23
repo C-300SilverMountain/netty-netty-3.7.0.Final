@@ -55,7 +55,7 @@ import org.jboss.netty.channel.Channels;
  * +----------+
  * </pre>
  *
- *
+ *分隔符解码器
  * @apiviz.uses org.jboss.netty.handler.codec.frame.Delimiters - - useful
  */
 public class DelimiterBasedFrameDecoder extends FrameDecoder {

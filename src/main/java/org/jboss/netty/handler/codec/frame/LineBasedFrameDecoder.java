@@ -25,6 +25,7 @@ import org.jboss.netty.channel.Channels;
  * <p>
  * Both {@code "\n"} and {@code "\r\n"} are handled.
  * For a more general delimiter-based decoder, see {@link DelimiterBasedFrameDecoder}.
+ * 换行符解码器
  */
 public class LineBasedFrameDecoder extends FrameDecoder {
 
